@@ -54,7 +54,7 @@ services:
     container_name: asset-management-api-mysql
     image: mysql:8.0.33
     ports:
-      - "3306:3306"
+      - "3307:3306"
     expose:
       - "3306"
     environment:
