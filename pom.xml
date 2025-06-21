@@ -23,6 +23,7 @@
         <java-jwt.version>4.4.0</java-jwt.version>
         <jwks-rsa.version>0.22.0</jwks-rsa.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <modules>
@@ -39,6 +40,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
