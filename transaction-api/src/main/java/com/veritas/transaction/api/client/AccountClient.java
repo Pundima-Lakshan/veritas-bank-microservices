@@ -8,12 +8,11 @@ import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @FeignClient(name = "account-api")
-@RequestMapping("/api/account")
 public interface AccountClient {
-    @PostMapping("/{id}/debit")
+    @PostMapping("/api/account/{id}/debit")
     void debitAccount(@PathVariable("id") String accountId, @RequestBody DebitCreditRequest request);
 
-    @PostMapping("/{id}/credit")
+    @PostMapping("/api/account/{id}/credit")
     void creditAccount(@PathVariable("id") String accountId, @RequestBody DebitCreditRequest request);
 
     class DebitCreditRequest {
