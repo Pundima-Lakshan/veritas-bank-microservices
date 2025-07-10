@@ -10,7 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import jakarta.servlet.http.HttpServletRequest;
+import com.veritas.transaction.api.model.Transaction;
+import com.veritas.transaction.api.util.JwtUtil;
 
 /**
  * Controller class that handles HTTP requests related to transactions.
@@ -34,9 +38,27 @@ public class TransactionController {
     @CircuitBreaker(name = "asset-management", fallbackMethod = "fallbackMethod")
     @TimeLimiter(name = "asset-management")
     @Retry(name = "asset-management")
-    public CompletableFuture<String> processTransaction(@RequestBody TransactionRequest transactionRequest) {
+    public CompletableFuture<String> processTransaction(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
         log.info("Transaction processed.");
+        String authHeader = request.getHeader("Authorization");
+        String userId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            userId = JwtUtil.extractUserId(token);
+        }
+        transactionRequest.setUserId(userId);
         return CompletableFuture.supplyAsync(() -> transactionService.processTransaction(transactionRequest));
+    }
+
+    @GetMapping
+    public List<Transaction> getUserTransactions(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String userId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            userId = JwtUtil.extractUserId(token);
+        }
+        return transactionService.getTransactionsForUser(userId);
     }
 
     /**

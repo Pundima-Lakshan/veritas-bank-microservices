@@ -22,6 +22,9 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String transactionId;
+    private String userId; // Auth0 user ID
+    private String sourceAccountId; // For transfers
+    private String destinationAccountId; // For transfers
     @OneToMany(cascade = CascadeType.ALL)
     private List<TransactionItems> transactionItemsList;
 }

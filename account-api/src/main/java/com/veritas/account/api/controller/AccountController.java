@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import com.veritas.account.api.util.JwtUtil;
 
 /**
  * Controller class that handles HTTP requests related to bank accounts.
@@ -27,7 +29,28 @@ public class AccountController {
      * @return A ResponseEntity with a success message and HTTP status code 201 if the account was created successfully.
      */
     @PostMapping
-    public ResponseEntity<String> createAccount(@RequestBody AccountRequest accountRequest) {
+    public ResponseEntity<String> createAccount(@RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String userId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            // Simple JWT parsing to extract 'sub' claim (user id)
+            try {
+                String[] parts = token.split("\\.");
+                if (parts.length == 3) {
+                    String payloadJson = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
+                    int subIndex = payloadJson.indexOf("\"sub\":");
+                    if (subIndex != -1) {
+                        int start = payloadJson.indexOf('"', subIndex + 6) + 1;
+                        int end = payloadJson.indexOf('"', start);
+                        userId = payloadJson.substring(start, end);
+                    }
+                }
+            } catch (Exception e) {
+                // fallback: userId remains null
+            }
+        }
+        accountRequest.setUserId(userId);
         accountService.createAccount(accountRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body
                 ("Successfully set up a new bank account for " +
@@ -41,8 +64,27 @@ public class AccountController {
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<AccountResponse> getAllAccounts() {
-        return accountService.getAllAccounts();
+    public List<AccountResponse> getAllAccounts(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String userId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                String[] parts = token.split("\\.");
+                if (parts.length == 3) {
+                    String payloadJson = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
+                    int subIndex = payloadJson.indexOf("\"sub\":");
+                    if (subIndex != -1) {
+                        int start = payloadJson.indexOf('"', subIndex + 6) + 1;
+                        int end = payloadJson.indexOf('"', start);
+                        userId = payloadJson.substring(start, end);
+                    }
+                }
+            } catch (Exception e) {
+                // fallback: userId remains null
+            }
+        }
+        return accountService.getAllAccounts(userId);
     }
 
     /**
@@ -53,9 +95,15 @@ public class AccountController {
      *         or a ResponseEntity with an error message and HTTP status code 404 if the account was not found.
      */
     @DeleteMapping
-    public ResponseEntity<String> deleteAccount(@RequestBody AccountRequest accountRequest) {
+    public ResponseEntity<String> deleteAccount(@RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String userId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            userId = JwtUtil.extractUserId(token);
+        }
         try {
-            accountService.deleteAccountByAccountHolderName(accountRequest.getAccountHolderName());
+            accountService.deleteAccountByAccountHolderNameAndUserId(accountRequest.getAccountHolderName(), userId);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully deleted " +
                     accountRequest.getAccountHolderName() + "'s account.");
         } catch (RuntimeException runtimeException) {

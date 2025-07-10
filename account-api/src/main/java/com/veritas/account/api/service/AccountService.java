@@ -38,6 +38,7 @@ public class AccountService {
                 .accountHolderName(accountRequest.getAccountHolderName())
                 .balance(accountRequest.getBalance())
                 .currency(accountRequest.getCurrency())
+                .userId(accountRequest.getUserId()) // set userId from request
                 .build();
 
         accountRepository.save(account);
@@ -85,6 +86,17 @@ public class AccountService {
     }
 
     /**
+     * Retrieves all bank accounts for a specific user.
+     *
+     * @param userId The ID of the user whose accounts to retrieve.
+     * @return A list of AccountResponse objects representing the user's bank accounts.
+     */
+    public List<AccountResponse> getAllAccounts(String userId) {
+        List<Account> accounts = accountRepository.findByUserId(userId);
+        return accounts.stream().map(this::mapToAccountResponse).toList();
+    }
+
+    /**
      * Maps an Account object to an AccountResponse object.
      *
      * @param account The Account object to map.
@@ -97,6 +109,7 @@ public class AccountService {
                 .accountHolderName(account.getAccountHolderName())
                 .balance(account.getBalance())
                 .currency(account.getCurrency())
+                .userId(account.getUserId()) // include userId in response
                 .build();
     }
 
@@ -119,6 +132,28 @@ public class AccountService {
         } else {
             throw new NoSuchElementException("The bank account information for "
                     + name + " was not found.");
+        }
+    }
+
+    /**
+     * Deletes a bank account based on the account holder name and userId.
+     *
+     * @param name The account holder name.
+     * @param userId The user ID from the JWT.
+     * @throws NoSuchElementException if the account is not found or does not belong to the user.
+     */
+    public void deleteAccountByAccountHolderNameAndUserId(String name, String userId) {
+        List<Account> accounts = accountRepository.findByUserId(userId);
+        Optional<Account> accountToDelete = accounts.stream()
+                .filter(a -> a.getAccountHolderName() != null &&
+                        a.getAccountHolderName().equals(name)).findFirst();
+
+        if (accountToDelete.isPresent()) {
+            accountRepository.delete(accountToDelete.get());
+            redisTemplate.delete(CACHE_KEY);
+        } else {
+            throw new NoSuchElementException("The bank account information for "
+                    + name + " was not found or does not belong to the user.");
         }
     }
 }

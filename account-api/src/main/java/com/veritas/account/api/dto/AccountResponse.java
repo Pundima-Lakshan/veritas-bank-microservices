@@ -21,4 +21,5 @@ public class AccountResponse {
     private String accountHolderName;
     private BigDecimal balance;
     private Currency currency;
+    private String userId; // Auth0 user ID
 }
