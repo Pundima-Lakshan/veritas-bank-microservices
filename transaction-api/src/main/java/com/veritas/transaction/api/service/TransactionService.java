@@ -10,6 +10,7 @@ import com.veritas.transaction.api.model.Transaction;
 import com.veritas.transaction.api.model.TransactionItems;
 import com.veritas.transaction.api.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -32,6 +33,9 @@ public class TransactionService {
   private final AssetManagementClient assetManagementClient;
   private final KafkaTemplate<String, TransactionEvent> kafkaTemplate;
   private final AccountClient accountClient;
+  
+  @Value("${bank.account.id}")
+  private String bankAccountId;
 
   /**
    *
@@ -50,6 +54,7 @@ public class TransactionService {
     transaction.setUserId(transactionRequest.getUserId());
     transaction.setSourceAccountId(transactionRequest.getSourceAccountId());
     transaction.setDestinationAccountId(transactionRequest.getDestinationAccountId());
+    transaction.setType(transactionRequest.getType());
 
     List<TransactionItems> transactionItems = transactionRequest.getTransactionItemsDtoList()
         .stream()
@@ -68,15 +73,33 @@ public class TransactionService {
       throw new IllegalArgumentException("Asset is not available, please try again later");
     }
 
-    // Assume single-asset transaction for simplicity
     BigDecimal amount = transactionItems.isEmpty() ? BigDecimal.ZERO : BigDecimal.valueOf(transactionItems.get(0).getValue());
     if (amount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Transaction amount must be positive");
     }
-    // Debit source account (will throw if insufficient funds)
-    accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
-    // Credit destination account
-    accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+
+    String type = transactionRequest.getType();
+    if (type == null) {
+      throw new IllegalArgumentException("Transaction type is required");
+    }
+    switch (type.toLowerCase()) {
+      case "deposit" -> {
+        // Credit the user's account, debit the bank's account
+        accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+        accountClient.debitAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
+      }
+      case "withdrawal" -> {
+        // Debit the user's account, credit the bank's account
+        accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
+        accountClient.creditAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
+      }
+      case "transfer" -> {
+        // Debit source, credit destination
+        accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
+        accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+      }
+      default -> throw new IllegalArgumentException("Invalid transaction type: " + type);
+    }
 
     transactionRepository.save(transaction);
     kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId()));

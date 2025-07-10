@@ -54,6 +54,14 @@ public class AccountTestData implements CommandLineRunner {
         accountItem4.setCurrency(Currency.getInstance("HUF"));
         accountList.add(accountItem4);
 
+        Account bankAccount = new Account();
+        bankAccount.setId("BANK_ACCOUNT_ID");
+        bankAccount.setAccountNumber("BANK-0000-0000-0000-0000");
+        bankAccount.setAccountHolderName("Bank");
+        bankAccount.setBalance(BigDecimal.valueOf(100000000));
+        bankAccount.setCurrency(Currency.getInstance("USD"));
+        accountList.add(bankAccount);
+
         accountRepository.saveAll(accountList);
     }
 }

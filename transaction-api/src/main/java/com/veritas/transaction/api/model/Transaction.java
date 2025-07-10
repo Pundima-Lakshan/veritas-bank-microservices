@@ -25,6 +25,7 @@ public class Transaction {
     private String userId; // Auth0 user ID
     private String sourceAccountId; // For transfers
     private String destinationAccountId; // For transfers
+    private String type; // deposit, withdrawal, transfer
     @OneToMany(cascade = CascadeType.ALL)
     private List<TransactionItems> transactionItemsList;
 }

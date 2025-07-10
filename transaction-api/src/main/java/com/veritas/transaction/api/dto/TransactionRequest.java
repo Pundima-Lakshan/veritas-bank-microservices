@@ -17,4 +17,5 @@ public class TransactionRequest {
     private String userId; // Auth0 user ID (set in backend)
     private String sourceAccountId; // For transfers
     private String destinationAccountId; // For transfers
+    private String type; // deposit, withdrawal, transfer
 }
