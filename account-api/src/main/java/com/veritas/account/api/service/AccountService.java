@@ -156,4 +156,23 @@ public class AccountService {
                     + name + " was not found or does not belong to the user.");
         }
     }
+
+    public void debitAccount(String accountId, java.math.BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient funds");
+        }
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepository.save(account);
+        redisTemplate.delete(CACHE_KEY);
+    }
+
+    public void creditAccount(String accountId, java.math.BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+        redisTemplate.delete(CACHE_KEY);
+    }
 }

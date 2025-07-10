@@ -1,5 +1,6 @@
 package com.veritas.transaction.api.service;
 
+import com.veritas.transaction.api.client.AccountClient;
 import com.veritas.transaction.api.client.AssetManagementClient;
 import com.veritas.transaction.api.dto.AssetManagementResponse;
 import com.veritas.transaction.api.dto.TransactionItemsDto;
@@ -15,6 +16,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class TransactionService {
   private final TransactionRepository transactionRepository;
   private final AssetManagementClient assetManagementClient;
   private final KafkaTemplate<String, TransactionEvent> kafkaTemplate;
+  private final AccountClient accountClient;
 
   /**
    *
@@ -44,6 +47,9 @@ public class TransactionService {
   public String processTransaction(TransactionRequest transactionRequest) {
     Transaction transaction = new Transaction();
     transaction.setTransactionId(UUID.randomUUID().toString());
+    transaction.setUserId(transactionRequest.getUserId());
+    transaction.setSourceAccountId(transactionRequest.getSourceAccountId());
+    transaction.setDestinationAccountId(transactionRequest.getDestinationAccountId());
 
     List<TransactionItems> transactionItems = transactionRequest.getTransactionItemsDtoList()
         .stream()
@@ -58,13 +64,23 @@ public class TransactionService {
 
     boolean assetIsAvailable = checkAssetAvailability(assetCodes);
 
-    if (assetIsAvailable) {
-      transactionRepository.save(transaction);
-      kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId()));
-      return "Transaction completed successfully!";
-    } else {
+    if (!assetIsAvailable) {
       throw new IllegalArgumentException("Asset is not available, please try again later");
     }
+
+    // Assume single-asset transaction for simplicity
+    BigDecimal amount = transactionItems.isEmpty() ? BigDecimal.ZERO : BigDecimal.valueOf(transactionItems.get(0).getValue());
+    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Transaction amount must be positive");
+    }
+    // Debit source account (will throw if insufficient funds)
+    accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
+    // Credit destination account
+    accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+
+    transactionRepository.save(transaction);
+    kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId()));
+    return "Transaction completed successfully!";
   }
 
   /**
@@ -94,4 +110,8 @@ public class TransactionService {
     transactionItems.setValue(transactionItemsDto.getValue());
     return transactionItems;
   }
+
+    public List<Transaction> getTransactionsForUser(String userId) {
+        return transactionRepository.findByUserId(userId);
+    }
 }

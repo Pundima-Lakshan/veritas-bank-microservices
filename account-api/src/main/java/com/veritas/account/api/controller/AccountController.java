@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import com.veritas.account.api.util.JwtUtil;
+import com.veritas.account.api.dto.DebitCreditRequest;
 
 /**
  * Controller class that handles HTTP requests related to bank accounts.
@@ -109,5 +110,21 @@ public class AccountController {
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(runtimeException.getMessage());
         }
+    }
+
+    @PostMapping("/{id}/debit")
+    public ResponseEntity<String> debitAccount(@PathVariable String id, @RequestBody DebitCreditRequest request) {
+        try {
+            accountService.debitAccount(id, request.getAmount());
+            return ResponseEntity.ok("Account debited successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/credit")
+    public ResponseEntity<String> creditAccount(@PathVariable String id, @RequestBody DebitCreditRequest request) {
+        accountService.creditAccount(id, request.getAmount());
+        return ResponseEntity.ok("Account credited successfully.");
     }
 }
