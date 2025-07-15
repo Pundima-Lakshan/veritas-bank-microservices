@@ -9,6 +9,8 @@ export function QuickActions() {
       </CardHeader>
       <CardContent>
         <Button>Transfer Money</Button>
+        <Button>Deposit Money</Button>
+        <Button>Withdraw Money</Button>
       </CardContent>
     </Card>
   );

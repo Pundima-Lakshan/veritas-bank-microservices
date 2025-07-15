@@ -193,4 +193,10 @@ public class AccountService {
         accountRepository.save(account);
         redisTemplate.delete(CACHE_KEY);
     }
+
+    public AccountResponse getAccountById(String accountId) {
+        Account account = accountRepository.findById(accountId)
+            .orElse(null);
+        return account != null ? mapToAccountResponse(account) : null;
+    }
 }

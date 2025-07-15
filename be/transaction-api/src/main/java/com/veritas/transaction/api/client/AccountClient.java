@@ -1,11 +1,13 @@
 package com.veritas.transaction.api.client;
 
+import com.veritas.transaction.api.dto.AccountResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(name = "account-api")
 public interface AccountClient {
@@ -14,6 +16,9 @@ public interface AccountClient {
 
     @PostMapping("/api/account/{id}/credit")
     void creditAccount(@PathVariable("id") String accountId, @RequestBody DebitCreditRequest request);
+
+    @GetMapping("/api/account/{id}")
+    AccountResponse getAccountById(@PathVariable("id") String accountId);
 
     class DebitCreditRequest {
         public BigDecimal amount;

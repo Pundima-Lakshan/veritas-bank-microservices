@@ -75,18 +75,41 @@ public class TransactionService {
     if (type == null) {
       throw new IllegalArgumentException("Transaction type is required");
     }
+    // Ownership checks
+    String userId = transactionRequest.getUserId();
+    String sourceAccountId = transactionRequest.getSourceAccountId();
+    String destinationAccountId = transactionRequest.getDestinationAccountId();
+
     switch (type.toLowerCase()) {
       case "deposit" -> {
-        accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+        if (destinationAccountId != null) {
+          var destAccount = accountClient.getAccountById(destinationAccountId);
+          if (destAccount == null || !userId.equals(destAccount.getUserId())) {
+            throw new IllegalArgumentException("Destination account does not belong to the user");
+          }
+        }
+        accountClient.creditAccount(destinationAccountId, new AccountClient.DebitCreditRequest(amount));
         assetManagementClient.updateAssetAmount(assetCode, amount.intValue());
       }
       case "withdrawal" -> {
-        accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
+        if (sourceAccountId != null) {
+          var srcAccount = accountClient.getAccountById(sourceAccountId);
+          if (srcAccount == null || !userId.equals(srcAccount.getUserId())) {
+            throw new IllegalArgumentException("Source account does not belong to the user");
+          }
+        }
+        accountClient.debitAccount(sourceAccountId, new AccountClient.DebitCreditRequest(amount));
         assetManagementClient.updateAssetAmount(assetCode, -amount.intValue());
       }
       case "transfer" -> {
-        accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
-        assetManagementClient.updateAssetAmount(assetCode, -amount.intValue());
+        if (sourceAccountId != null) {
+          var srcAccount = accountClient.getAccountById(sourceAccountId);
+          if (srcAccount == null || !userId.equals(srcAccount.getUserId())) {
+            throw new IllegalArgumentException("Source account does not belong to the user");
+          }
+        }
+        accountClient.debitAccount(sourceAccountId, new AccountClient.DebitCreditRequest(amount));
+        accountClient.creditAccount(destinationAccountId, new AccountClient.DebitCreditRequest(amount));
       }
       default -> throw new IllegalArgumentException("Invalid transaction type: " + type);
     }

@@ -113,6 +113,15 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountResponse> getAccountById(@PathVariable String id) {
+        AccountResponse response = accountService.getAccountById(id);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{id}/debit")
     public ResponseEntity<String> debitAccount(@PathVariable String id, @RequestBody DebitCreditRequest request) {
         try {
