@@ -34,8 +34,6 @@ public class TransactionService {
   private final KafkaTemplate<String, TransactionEvent> kafkaTemplate;
   private final AccountClient accountClient;
   
-  @Value("${bank.account.id}")
-  private String bankAccountId;
 
   /**
    *
@@ -55,6 +53,7 @@ public class TransactionService {
     transaction.setSourceAccountId(transactionRequest.getSourceAccountId());
     transaction.setDestinationAccountId(transactionRequest.getDestinationAccountId());
     transaction.setType(transactionRequest.getType());
+    transaction.setAmount(transactionRequest.getAmount());
 
     // Asset and amount
     String assetCode = transactionRequest.getAssetCode();
@@ -79,15 +78,15 @@ public class TransactionService {
     switch (type.toLowerCase()) {
       case "deposit" -> {
         accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
-        accountClient.debitAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
+        assetManagementClient.updateAssetAmount(assetCode, amount.intValue());
       }
       case "withdrawal" -> {
         accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
-        accountClient.creditAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
+        assetManagementClient.updateAssetAmount(assetCode, -amount.intValue());
       }
       case "transfer" -> {
         accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
-        accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
+        assetManagementClient.updateAssetAmount(assetCode, -amount.intValue());
       }
       default -> throw new IllegalArgumentException("Invalid transaction type: " + type);
     }

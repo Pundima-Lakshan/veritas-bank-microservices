@@ -4,6 +4,7 @@ import com.veritas.transaction.api.dto.AssetManagementResponse;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -12,9 +13,9 @@ import java.util.List;
  * A Feign client interface for interacting with the Asset Management API.
  */
 @FeignClient(name = "asset-management-api")
-@Retry(name = "asset-management")
 public interface AssetManagementClient {
 
+  @Retry(name = "asset-management")
   /**
    *
    * Retrieves asset availability information from the Asset Management API.
@@ -26,4 +27,12 @@ public interface AssetManagementClient {
    */
   @GetMapping("/api/asset-management")
   List<AssetManagementResponse> checkAssetAvailability(@RequestParam List<String> assetCode, @RequestParam List<Integer> amount);
+
+  /**
+   * Updates the amount of an asset by asset code.
+   * @param assetCode The asset code to update.
+   * @param amount The amount to add (can be negative for deduction).
+   */
+  @PostMapping("/api/asset-management/update-amount")
+  void updateAssetAmount(@RequestParam("assetCode") String assetCode, @RequestParam("amount") int amount);
 }

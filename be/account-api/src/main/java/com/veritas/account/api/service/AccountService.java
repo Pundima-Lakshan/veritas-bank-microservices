@@ -9,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
+import com.veritas.account.api.client.TransactionApiClient;
+import com.veritas.account.api.dto.TransactionRequest;
 
 /**
  * Service class that provides operations for managing bank accounts.
@@ -22,6 +25,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     private final RedisTemplate<String, List<AccountResponse>> redisTemplate;
+
+    private final TransactionApiClient transactionApiClient;
 
     private static final String CACHE_KEY = "accounts";
 
@@ -36,7 +41,7 @@ public class AccountService {
         Account account = Account.builder()
                 .accountNumber(generateIBAN())
                 .accountHolderName(accountRequest.getAccountHolderName())
-                .balance(accountRequest.getBalance())
+                .balance(BigDecimal.valueOf(0)) // this will be updated at transaction level
                 .currency(accountRequest.getCurrency())
                 .userId(accountRequest.getUserId()) // set userId from request
                 .build();
@@ -44,6 +49,17 @@ public class AccountService {
         accountRepository.save(account);
         redisTemplate.delete(CACHE_KEY);
         log.info("Account for {} is created", account.getAccountHolderName());
+
+        // Call transaction API for initial deposit
+        if (accountRequest.getBalance() != null && accountRequest.getBalance().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            TransactionRequest txRequest = new TransactionRequest();
+            txRequest.setUserId(accountRequest.getUserId());
+            txRequest.setDestinationAccountId(account.getId());
+            txRequest.setType("deposit");
+            txRequest.setAssetCode(accountRequest.getCurrency().toString()); // or another asset code logic
+            txRequest.setAmount(accountRequest.getBalance());
+            transactionApiClient.createTransaction(txRequest);
+        }
     }
 
     /**

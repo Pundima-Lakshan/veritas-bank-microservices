@@ -35,4 +35,18 @@ public class AssetManagementController {
     log.info("Received asset availability check request for asset code: {} and amount: {}", assetCode, amount);
     return assetManagementService.isAssetAvailable(assetCode, amount);
   }
+
+  /**
+   * Updates the amount of an asset by asset code.
+   * @param assetCode The asset code to update.
+   * @param amount The amount to add (can be negative for deduction).
+   * @return Success message.
+   */
+  @PostMapping("/update-amount")
+  @ResponseStatus(HttpStatus.OK)
+  public String updateAssetAmount(@RequestParam String assetCode, @RequestParam int amount) {
+    log.info("Received asset amount update request for asset code: {} with amount: {}", assetCode, amount);
+    assetManagementService.updateAssetAmount(assetCode, amount);
+    return "Asset amount updated successfully";
+  }
 }

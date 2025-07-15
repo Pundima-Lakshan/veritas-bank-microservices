@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
-import java.util.List;
+
+import java.math.BigDecimal;
 
 /**
  * Represents a transaction.
@@ -26,6 +27,5 @@ public class Transaction {
     private String sourceAccountId; // For transfers
     private String destinationAccountId; // For transfers
     private String type; // deposit, withdrawal, transfer
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<TransactionItems> transactionItemsList;
+    private BigDecimal amount;
 }

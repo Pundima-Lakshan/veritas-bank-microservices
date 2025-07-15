@@ -35,16 +35,15 @@ public class TransactionController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @CircuitBreaker(name = "asset-management", fallbackMethod = "fallbackMethod")
-    @TimeLimiter(name = "asset-management")
-    @Retry(name = "asset-management")
     public CompletableFuture<String> processTransaction(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
         log.info("Transaction processed.");
-        String authHeader = request.getHeader("Authorization");
-        String userId = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            userId = JwtUtil.extractUserId(token);
+        String userId = transactionRequest.getUserId();
+        if (userId == null || userId.isEmpty()) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                userId = JwtUtil.extractUserId(token);
+            }
         }
         transactionRequest.setUserId(userId);
         return CompletableFuture.supplyAsync(() -> transactionService.processTransaction(transactionRequest));

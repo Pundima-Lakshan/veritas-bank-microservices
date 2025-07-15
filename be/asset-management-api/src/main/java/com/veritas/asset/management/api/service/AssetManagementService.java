@@ -45,4 +45,20 @@ public class AssetManagementService {
         .build();
     }).toList();
   }
+
+  /**
+   * Updates the amount of an asset by asset code.
+   * @param assetCode The asset code to update.
+   * @param amount The amount to add (can be negative for deduction).
+   */
+  @Transactional
+  public void updateAssetAmount(String assetCode, int amount) {
+    var assets = assetManagementRepository.findByAssetCodeIn(List.of(assetCode));
+    if (assets.isEmpty()) {
+      throw new IllegalArgumentException("Asset not found: " + assetCode);
+    }
+    var asset = assets.get(0);
+    asset.setValue(asset.getValue() + amount);
+    assetManagementRepository.save(asset);
+  }
 }
