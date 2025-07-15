@@ -1,5 +1,6 @@
 import { AppBreadcrumb } from "@/components/templates/app-breadcrumb";
 import { AppSidebar } from "@/components/templates/app-sidebar";
+import { UserAvatar } from "@/components/templates/auth/user-avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -59,7 +60,12 @@ export function Root() {
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <AppBreadcrumb items={breadcrumbItems} />
+            <div className="flex-1 flex items-center gap-2">
+              <AppBreadcrumb items={breadcrumbItems} />
+            </div>
+            <div className="ml-auto">
+              <UserAvatar />
+            </div>
           </header>
           <div className="p-5">
             <Outlet />
