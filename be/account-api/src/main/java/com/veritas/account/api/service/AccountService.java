@@ -175,6 +175,18 @@ public class AccountService {
         }
     }
 
+    /**
+     * Deletes a bank account by account id.
+     * @param accountId The account id.
+     * @throws NoSuchElementException if the account is not found.
+     */
+    public void deleteAccountById(String accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NoSuchElementException("Account with id " + accountId + " not found."));
+        accountRepository.delete(account);
+        redisTemplate.delete(CACHE_KEY);
+    }
+
     public void debitAccount(String accountId, java.math.BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));

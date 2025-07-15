@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import com.veritas.account.api.util.JwtUtil;
 import com.veritas.account.api.dto.DebitCreditRequest;
+import java.util.NoSuchElementException;
 
 /**
  * Controller class that handles HTTP requests related to bank accounts.
@@ -110,6 +111,16 @@ public class AccountController {
                     accountRequest.getAccountHolderName() + "'s account.");
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(runtimeException.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteAccountById(@PathVariable String id) {
+        try {
+            accountService.deleteAccountById(id);
+            return ResponseEntity.ok("Successfully deleted account with id: " + id);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
