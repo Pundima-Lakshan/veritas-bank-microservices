@@ -37,12 +37,12 @@ export function AccountsList() {
               <CardContent>
                 <div className="space-y-1">
                   <div>
-                    <span className="font-medium">Balance:</span> $
-                    {account.balance.toLocaleString()}
-                  </div>
-                  <div>
                     <span className="font-medium">Number:</span>{" "}
                     {maskAccountNumber(account.accountNumber)}
+                  </div>
+                  <div>
+                    <span className="font-medium">Balance:</span>
+                    {account.balance.toLocaleString()}
                   </div>
                   <div>
                     <span className="font-medium">Currency:</span>{" "}
