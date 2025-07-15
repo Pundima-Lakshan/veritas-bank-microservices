@@ -1,3 +1,4 @@
+import { AppBreadcrumb } from "@/components/templates/app-breadcrumb";
 import { AppSidebar } from "@/components/templates/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -5,6 +6,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { breadcrumbItems } from "@/lib/breadcrumb-items";
+import { sidebarItems } from "@/lib/sidebar-items";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -33,8 +36,8 @@ function Root() {
 
   return (
     <>
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider defaultOpen={false}>
+        <AppSidebar sidebarItems={sidebarItems} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
@@ -42,7 +45,7 @@ function Root() {
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            Breadcrumbs?
+            <AppBreadcrumb items={breadcrumbItems} />
           </header>
           <div className="p-5">
             <Outlet />

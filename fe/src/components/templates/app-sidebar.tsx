@@ -10,17 +10,20 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { data } from "@/lib/sidebar-items";
+import type { SidebarItems } from "@/lib/sidebar-items";
 import { Link } from "@tanstack/react-router";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  sidebarItems,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { sidebarItems: SidebarItems }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader className="text-primary font-bold text-center">
         Veritas Banking
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((item) => (
+        {sidebarItems.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
