@@ -39,10 +39,7 @@ export interface Transaction {
   assetCode: string;
   sourceAccountId?: string;
   destinationAccountId?: string;
-  timestamp: string;
-  status: string;
-  errorMessage?: string;
-  referenceId?: string;
+  transactionTime: string;
 }
 
 export const createAccount = (data: CreateAccountRequest) => {

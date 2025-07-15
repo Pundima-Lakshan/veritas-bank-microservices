@@ -26,18 +26,24 @@ export function RecentTransactions({
               <TableHead>Date</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Balance</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactions.slice(0, 10).map((tx, idx) => (
+            {transactions.map((tx, idx) => (
               <TableRow key={idx}>
-                <TableCell>{tx.timestamp}</TableCell>
+                <TableCell>
+                  {new Date(tx.transactionTime).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </TableCell>
                 <TableCell>{tx.type}</TableCell>
                 <TableCell>
-                  ${tx.amount?.toLocaleString?.() ?? tx.amount}
+                  {tx.amount?.toLocaleString?.() ?? tx.amount}
                 </TableCell>
-                <TableCell>-</TableCell>
               </TableRow>
             ))}
           </TableBody>
