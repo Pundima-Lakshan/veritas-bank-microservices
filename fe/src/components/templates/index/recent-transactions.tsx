@@ -31,7 +31,7 @@ const transactions = [
 
 export function RecentTransactions() {
   return (
-    <Card className="md:col-span-3">
+    <Card>
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
       </CardHeader>

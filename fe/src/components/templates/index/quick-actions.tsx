@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function QuickActions() {
   return (
-    <Card className="md:col-span-2">
+    <Card>
       <CardHeader>
         <CardTitle>Quick Actions</CardTitle>
       </CardHeader>
