@@ -57,6 +57,12 @@ public class TransactionController {
             String token = authHeader.substring(7);
             userId = JwtUtil.extractUserId(token);
         }
+        
+        if (userId == null || userId.isEmpty()) {
+            log.warn("User ID not found in request");
+            return List.of(); // Return empty list if user is not authenticated
+        }
+        
         return transactionService.getTransactionsForUser(userId);
     }
 

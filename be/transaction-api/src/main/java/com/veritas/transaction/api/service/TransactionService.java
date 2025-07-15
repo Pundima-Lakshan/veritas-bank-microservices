@@ -151,6 +151,36 @@ public class TransactionService {
   }
 
     public List<Transaction> getTransactionsForUser(String userId) {
-        return transactionRepository.findByUserId(userId);
+        // Get direct transactions for the user
+        List<Transaction> userTransactions = transactionRepository.findByUserId(userId);
+        
+        // Get all accounts for the user
+        List<com.veritas.transaction.api.dto.AccountResponse> userAccounts = accountClient.getAllAccountsForUser();
+        
+        // Extract account IDs
+        List<String> accountIds = userAccounts.stream()
+                .map(com.veritas.transaction.api.dto.AccountResponse::getId)
+                .toList();
+        
+        // Get transactions where user's accounts are involved (as source or destination)
+        List<Transaction> sourceAccountTransactions = transactionRepository.findBySourceAccountIdIn(accountIds);
+        List<Transaction> destinationAccountTransactions = transactionRepository.findByDestinationAccountIdIn(accountIds);
+        
+        // Combine all transactions and remove duplicates
+        List<Transaction> allTransactions = new java.util.ArrayList<>(userTransactions);
+        allTransactions.addAll(sourceAccountTransactions);
+        allTransactions.addAll(destinationAccountTransactions);
+        
+        // Remove duplicates based on transaction ID
+        return allTransactions.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        Transaction::getTransactionId,
+                        transaction -> transaction,
+                        (existing, replacement) -> existing
+                ))
+                .values()
+                .stream()
+                .sorted((t1, t2) -> t2.getTransactionTime().compareTo(t1.getTransactionTime()))
+                .toList();
     }
 }

@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
 
-@FeignClient(name = "account-api")
+@FeignClient(name = "account-api", configuration = com.veritas.transaction.api.config.FeignConfig.class)
 public interface AccountClient {
     @PostMapping("/api/account/{id}/debit")
     void debitAccount(@PathVariable("id") String accountId, @RequestBody DebitCreditRequest request);
@@ -19,6 +20,9 @@ public interface AccountClient {
 
     @GetMapping("/api/account/{id}")
     AccountResponse getAccountById(@PathVariable("id") String accountId);
+
+    @GetMapping("/api/account")
+    List<AccountResponse> getAllAccountsForUser();
 
     class DebitCreditRequest {
         public BigDecimal amount;

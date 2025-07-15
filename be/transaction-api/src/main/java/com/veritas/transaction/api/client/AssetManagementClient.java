@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A Feign client interface for interacting with the Asset Management API.
  */
-@FeignClient(name = "asset-management-api")
+@FeignClient(name = "asset-management-api", configuration = com.veritas.transaction.api.config.FeignConfig.class)
 public interface AssetManagementClient {
 
   @Retry(name = "asset-management")
