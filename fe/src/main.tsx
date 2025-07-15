@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import ReactDOM from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
+import "./index.css";
+
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./providers/auth-provider";
 
@@ -21,9 +23,11 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <div className="h-full w-full font-display">
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </div>
     </StrictMode>
   );
 }
