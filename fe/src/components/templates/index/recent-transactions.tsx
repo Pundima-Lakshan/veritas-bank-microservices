@@ -8,16 +8,16 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-interface Transaction {
-  date: string;
-  description: string;
-  amount: number;
-  balance: number;
-}
+// interface Transaction {
+//   date: string;
+//   description: string;
+//   amount: number;
+//   balance: number;
+// }
 
-interface RecentTransactionsProps {
-  transactions: Transaction[];
-}
+// interface RecentTransactionsProps {
+//   transactions: Transaction[];
+// }
 
 const transactions = [
   {

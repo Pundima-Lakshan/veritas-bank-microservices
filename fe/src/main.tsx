@@ -6,6 +6,9 @@ import "./index.css";
 
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./providers/auth-provider";
+import { ReactQueryProvider } from "./providers/react-query-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { Notification } from "./components/templates/notification";
 
 export const router = createRouter({
   routeTree,
@@ -25,8 +28,12 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <div className="h-full w-full font-display">
         <AuthProvider>
-          <RouterProvider router={router} />
+          <ReactQueryProvider>
+            <Notification />
+            <RouterProvider router={router} />
+          </ReactQueryProvider>
         </AuthProvider>
+        <Toaster />
       </div>
     </StrictMode>
   );
