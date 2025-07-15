@@ -44,7 +44,9 @@ function Root() {
             />
             Breadcrumbs?
           </header>
-          <Outlet />
+          <div className="p-5">
+            <Outlet />
+          </div>
         </SidebarInset>
       </SidebarProvider>
       {/* <TanStackRouterDevtools /> */}
