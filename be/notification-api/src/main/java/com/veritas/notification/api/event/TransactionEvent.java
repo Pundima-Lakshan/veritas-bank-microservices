@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransactionEvent {
     private String transactionId;
+    private String userId;
 }

@@ -2,13 +2,31 @@ import {
   useNotificationsStore,
   useNotificationsStoreActions,
 } from "@/stores/notifications-store";
+import {
+  useWebSocketNotifications,
+  useWebSocketNotificationsStore,
+} from "@/ws-notifications";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export const Notification = () => {
+  const { user } = useAuth0();
+  useWebSocketNotifications(user?.sub ?? null);
+
+  const websocketNotification = useWebSocketNotificationsStore(
+    (state) => state.notification
+  );
   const notifications = useNotificationsStore((state) => state.notifications);
   const { deleteNotification } = useNotificationsStoreActions();
 
+  // Show toast for websocket notification
+  useEffect(() => {
+    if (!websocketNotification) return;
+    toast.info(`New transaction: ${websocketNotification.transactionId}`);
+  }, [websocketNotification]);
+
+  // Show toast for notifications from the store
   useEffect(() => {
     if (notifications.length === 0) {
       return;

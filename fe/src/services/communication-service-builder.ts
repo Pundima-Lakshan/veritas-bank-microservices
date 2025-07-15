@@ -53,7 +53,7 @@ const handleResponse = async <O>(
 };
 
 // const getBearerToken = () => `Bearer ${sessionStorage.getItem("access_token")}`;
-const getBearerToken = () => {
+export const getBearerToken = () => {
   return `Bearer ${useAuthStore.getState().accessToken}`;
 };
 

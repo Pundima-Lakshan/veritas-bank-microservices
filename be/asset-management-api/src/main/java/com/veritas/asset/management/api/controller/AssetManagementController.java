@@ -79,7 +79,7 @@ public class AssetManagementController {
      * List all assets.
      * @return List of all assets.
      */
-    @GetMapping
+    @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<Asset> getAllAssets() {
         log.info("Received request to list all assets");

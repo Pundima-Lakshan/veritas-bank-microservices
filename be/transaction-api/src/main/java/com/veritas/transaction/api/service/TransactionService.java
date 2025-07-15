@@ -115,7 +115,7 @@ public class TransactionService {
     }
 
     transactionRepository.save(transaction);
-    kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId()));
+    kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId(), transaction.getUserId()));
     return "Transaction completed successfully!";
   }
 

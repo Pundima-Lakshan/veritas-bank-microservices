@@ -46,6 +46,7 @@ public class SecurityConfig {
   public CorsWebFilter corsWebFilter() {
     CorsConfiguration corsConfig = new CorsConfiguration();
     corsConfig.addAllowedOrigin("http://localhost:5173");
+    corsConfig.setAllowCredentials(true);
     corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
     corsConfig.setMaxAge(3600L);

@@ -5,6 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 /**
  * Main class for the Notification Api.
@@ -12,6 +14,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 @SpringBootApplication
 @Slf4j
 public class NotificationApiApplication {
+
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
 
 	public static void main(String[] args) {
 		SpringApplication.run(NotificationApiApplication.class, args);
@@ -25,5 +30,8 @@ public class NotificationApiApplication {
 	@KafkaListener(topics = "notificationTopic")
 	public void handleNotification(TransactionEvent transactionEvent) {
 		log.info("Received notification for transaction: {}", transactionEvent.getTransactionId());
+		if (transactionEvent.getUserId() != null && !transactionEvent.getUserId().isEmpty()) {
+			messagingTemplate.convertAndSend("/topic/notifications/" + transactionEvent.getUserId(), transactionEvent);
+		}
 	}
 }
