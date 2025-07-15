@@ -23,22 +23,26 @@ public class AssetManagementService {
 
   /**
    *
-   * Checks the availability of assets based on their codes.
+   * Checks the availability of assets based on their codes and requested amounts.
    * 
    * @param assetCode The list of asset codes to check.
+   * @param amount The list of amounts to check for each asset code.
    * @return A list of AssetManagementResponse objects indicating the availability
-   *         of each asset.
+   *         of each asset for the requested amount.
    */
   @Transactional(readOnly = true)
   @SneakyThrows
   @Cacheable("assetAvailability")
-  public List<AssetManagementResponse> isAssetAvailable(List<String> assetCode) {
+  public List<AssetManagementResponse> isAssetAvailable(List<String> assetCode, List<Integer> amount) {
     log.info("Checking asset availability");
-    return assetManagementRepository.findByAssetCodeIn(assetCode).stream()
-        .map(asset -> AssetManagementResponse.builder()
-            .assetCode(asset.getAssetCode())
-            .isAssetAvailable(asset.getValue() > 0)
-            .build())
-        .toList();
+    var assets = assetManagementRepository.findByAssetCodeIn(assetCode);
+    return assets.stream().map(asset -> {
+      int idx = assetCode.indexOf(asset.getAssetCode());
+      int requestedAmount = (idx >= 0 && idx < amount.size()) ? amount.get(idx) : 1;
+      return AssetManagementResponse.builder()
+        .assetCode(asset.getAssetCode())
+        .isAssetAvailable(asset.getValue() >= requestedAmount)
+        .build();
+    }).toList();
   }
 }

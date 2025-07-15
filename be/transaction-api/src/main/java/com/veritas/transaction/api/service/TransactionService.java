@@ -56,26 +56,20 @@ public class TransactionService {
     transaction.setDestinationAccountId(transactionRequest.getDestinationAccountId());
     transaction.setType(transactionRequest.getType());
 
-    List<TransactionItems> transactionItems = transactionRequest.getTransactionItemsDtoList()
-        .stream()
-        .map(this::mapToDto)
-        .toList();
+    // Asset and amount
+    String assetCode = transactionRequest.getAssetCode();
+    BigDecimal amount = transactionRequest.getAmount();
 
-    transaction.setTransactionItemsList(transactionItems);
-
-    List<String> assetCodes = transaction.getTransactionItemsList().stream()
-        .map(TransactionItems::getAssetCode)
-        .toList();
-
-    boolean assetIsAvailable = checkAssetAvailability(assetCodes);
-
-    if (!assetIsAvailable) {
-      throw new IllegalArgumentException("Asset is not available, please try again later");
+    if (assetCode == null || assetCode.isEmpty()) {
+      throw new IllegalArgumentException("Asset code is required");
+    }
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Transaction amount must be positive");
     }
 
-    BigDecimal amount = transactionItems.isEmpty() ? BigDecimal.ZERO : BigDecimal.valueOf(transactionItems.get(0).getValue());
-    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Transaction amount must be positive");
+    boolean assetIsAvailable = checkAssetAvailability(assetCode, amount);
+    if (!assetIsAvailable) {
+      throw new IllegalArgumentException("Asset is not available in the requested amount, please try again later");
     }
 
     String type = transactionRequest.getType();
@@ -84,17 +78,14 @@ public class TransactionService {
     }
     switch (type.toLowerCase()) {
       case "deposit" -> {
-        // Credit the user's account, debit the bank's account
         accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
         accountClient.debitAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
       }
       case "withdrawal" -> {
-        // Debit the user's account, credit the bank's account
         accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
         accountClient.creditAccount(bankAccountId, new AccountClient.DebitCreditRequest(amount));
       }
       case "transfer" -> {
-        // Debit source, credit destination
         accountClient.debitAccount(transactionRequest.getSourceAccountId(), new AccountClient.DebitCreditRequest(amount));
         accountClient.creditAccount(transactionRequest.getDestinationAccountId(), new AccountClient.DebitCreditRequest(amount));
       }
@@ -107,14 +98,17 @@ public class TransactionService {
   }
 
   /**
-   * Checks the availability of assets.
+   * Checks the availability of an asset for a given amount.
    *
-   * @param assetCodes The list of asset codes to check.
-   * @return true if all assets are available, false otherwise.
+   * @param assetCode The asset code to check.
+   * @param amount The amount to check for availability.
+   * @return true if the asset is available in the requested amount, false otherwise.
    */
   @Cacheable("assetAvailability")
-  public boolean checkAssetAvailability(List<String> assetCodes) {
-    return assetManagementClient.checkAssetAvailability(assetCodes)
+  public boolean checkAssetAvailability(String assetCode, BigDecimal amount) {
+    // Now pass both assetCode and amount as required by the updated AssetManagementClient
+    int amt = amount == null ? 1 : amount.intValue();
+    return assetManagementClient.checkAssetAvailability(List.of(assetCode), List.of(amt))
         .stream()
         .allMatch(AssetManagementResponse::isAssetAvailable);
   }

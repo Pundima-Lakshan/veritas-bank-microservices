@@ -22,16 +22,17 @@ public class AssetManagementController {
 
   /**
    *
-   * Retrieves the availability status of assets based on their codes.
+   * Retrieves the availability status of assets based on their codes and requested amounts.
    * 
    * @param assetCode The list of asset codes to check availability for.
+   * @param amount The list of amounts to check for each asset code.
    * @return The list of asset management responses containing the availability
-   *         status for each asset code.
+   *         status for each asset code and amount.
    */
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<AssetManagementResponse> isAssetAvailable(@RequestParam List<String> assetCode) {
-    log.info("Received asset availability check request for asset code: {}", assetCode);
-    return assetManagementService.isAssetAvailable(assetCode);
+  public List<AssetManagementResponse> isAssetAvailable(@RequestParam List<String> assetCode, @RequestParam List<Integer> amount) {
+    log.info("Received asset availability check request for asset code: {} and amount: {}", assetCode, amount);
+    return assetManagementService.isAssetAvailable(assetCode, amount);
   }
 }

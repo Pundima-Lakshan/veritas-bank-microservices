@@ -20,9 +20,10 @@ public interface AssetManagementClient {
    * Retrieves asset availability information from the Asset Management API.
    * 
    * @param assetCode The list of asset codes to check availability for.
+   * @param amount The list of amounts to check for each asset code.
    * @return A list of AssetManagementResponse objects containing asset
    *         availability information.
    */
   @GetMapping("/api/asset-management")
-  List<AssetManagementResponse> checkAssetAvailability(@RequestParam List<String> assetCode);
+  List<AssetManagementResponse> checkAssetAvailability(@RequestParam List<String> assetCode, @RequestParam List<Integer> amount);
 }

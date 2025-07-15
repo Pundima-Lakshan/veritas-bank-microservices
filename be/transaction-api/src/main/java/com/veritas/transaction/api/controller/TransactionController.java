@@ -29,9 +29,9 @@ public class TransactionController {
 
     /**
      *
-     *Processes a transaction asynchronously.
-     *@param transactionRequest The transaction request object received in the request body.
-     *@return A CompletableFuture representing the result of the transaction processing.
+     * Processes a transaction asynchronously.
+     * @param transactionRequest The transaction request object received in the request body (expects assetCode and amount).
+     * @return A CompletableFuture representing the result of the transaction processing.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
