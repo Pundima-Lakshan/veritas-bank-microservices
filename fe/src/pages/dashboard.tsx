@@ -1,5 +1,6 @@
 import { AccountsList } from "@/components/templates/dashboard/accounts-list";
 import { QuickActions } from "@/components/templates/dashboard/quick-actions";
+import { RecentUserTransactions } from "@/components/templates/transactions/recent-user-transactions";
 
 export function Index() {
   return (
@@ -9,6 +10,9 @@ export function Index() {
       </div>
       <div className="md:col-span-1">
         <QuickActions />
+      </div>
+      <div className="md:col-span-1">
+        <RecentUserTransactions />
       </div>
     </div>
   );

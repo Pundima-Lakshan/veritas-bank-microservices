@@ -7,29 +7,13 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import type { Transaction } from "@/services/http";
 
-// interface Transaction {
-//   date: string;
-//   description: string;
-//   amount: number;
-//   balance: number;
-// }
-
-// interface RecentTransactionsProps {
-//   transactions: Transaction[];
-// }
-
-const transactions = [
-  {
-    date: "2024-06-01",
-    description: "Deposit",
-    amount: 1000,
-    balance: 12345.67,
-  },
-  // ...more transactions
-];
-
-export function RecentTransactions() {
+export function RecentTransactions({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) {
   return (
     <Card>
       <CardHeader>
@@ -48,10 +32,12 @@ export function RecentTransactions() {
           <TableBody>
             {transactions.slice(0, 10).map((tx, idx) => (
               <TableRow key={idx}>
-                <TableCell>{tx.date}</TableCell>
-                <TableCell>{tx.description}</TableCell>
-                <TableCell>${tx.amount.toLocaleString()}</TableCell>
-                <TableCell>${tx.balance.toLocaleString()}</TableCell>
+                <TableCell>{tx.timestamp}</TableCell>
+                <TableCell>{tx.type}</TableCell>
+                <TableCell>
+                  ${tx.amount?.toLocaleString?.() ?? tx.amount}
+                </TableCell>
+                <TableCell>-</TableCell>
               </TableRow>
             ))}
           </TableBody>
