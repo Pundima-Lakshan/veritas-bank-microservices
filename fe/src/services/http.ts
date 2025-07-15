@@ -1,6 +1,6 @@
 import { get, post, remove } from "./communication-service-builder";
 
-const BASE_URL = "https://localhost:3000/api/";
+const BASE_URL = "http://localhost:8080/api/";
 
 export interface Account {
   id: string;

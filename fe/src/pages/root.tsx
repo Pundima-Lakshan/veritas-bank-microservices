@@ -8,12 +8,21 @@ import {
 } from "@/components/ui/sidebar";
 import { breadcrumbItems } from "@/lib/breadcrumb-items";
 import { sidebarItems } from "@/lib/sidebar-items";
+import { useAuthStore, useAuthStoreActions } from "@/stores/auth-store";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export function Root() {
-  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  const {
+    loginWithRedirect,
+    isAuthenticated,
+    isLoading,
+    getAccessTokenSilently,
+  } = useAuth0();
+
+  const { setAccessToken } = useAuthStoreActions();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   useEffect(() => {
     if (isAuthenticated || isLoading) {
@@ -26,7 +35,16 @@ export function Root() {
     });
   }, [loginWithRedirect, isAuthenticated, isLoading]);
 
-  if (isLoading || !isAuthenticated) {
+  useEffect(() => {
+    if (!isAuthenticated || isLoading) {
+      return;
+    }
+    getAccessTokenSilently().then((value) => {
+      setAccessToken(value);
+    });
+  }, [getAccessTokenSilently, isAuthenticated, isLoading, setAccessToken]);
+
+  if (isLoading || !isAuthenticated || !accessToken) {
     return <div>Authenticating...</div>;
   }
 

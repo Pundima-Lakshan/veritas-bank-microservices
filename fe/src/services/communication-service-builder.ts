@@ -1,3 +1,5 @@
+import { useAuthStore } from "@/stores/auth-store";
+
 type ResponseType = "json" | "blob" | "text" | "none";
 
 const handleResponse = async <O>(
@@ -50,7 +52,10 @@ const handleResponse = async <O>(
   return (await response.json()) as O;
 };
 
-const getBearerToken = () => `Bearer ${sessionStorage.getItem("access_token")}`;
+// const getBearerToken = () => `Bearer ${sessionStorage.getItem("access_token")}`;
+const getBearerToken = () => {
+  return `Bearer ${useAuthStore.getState().accessToken}`;
+};
 
 const makeRequest = async <O>(
   url: string,
