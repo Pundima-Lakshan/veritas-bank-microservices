@@ -1,5 +1,7 @@
 export const mutationKeys = {
-  login: 'login',
+  account: "account",
+  transaction: "transaction",
+  asset: "asset",
 } as const;
 
 export const mutationType = {

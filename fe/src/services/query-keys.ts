@@ -1,5 +1,5 @@
 export const queryKeys = {
-  signIn: 'signIn',
-
-  configs: 'configs',
+  accounts: "accounts",
+  assetAvailability: "assetAvailability",
+  transactions: "transactions",
 } as const;
