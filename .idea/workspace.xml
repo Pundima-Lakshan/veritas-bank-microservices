@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="81764aa4-be9f-41ac-b77e-74d1b2c31c39" name="Changes" comment="change folder structure" />
+    <list default="true" id="81764aa4-be9f-41ac-b77e-74d1b2c31c39" name="Changes" comment="change folder structure">
+      <change beforePath="$PROJECT_DIR$/fe/src/components/templates/index/accounts-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fe/src/components/templates/index/accounts-list.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,22 +21,26 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Pundima-Lakshan"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Pundima-Lakshan&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Pundima-Lakshan/veritas-bank-microservices.git",
-    "accountId": "688be101-1667-462f-bfc0-6b312c18d6c8"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Pundima-Lakshan/veritas-bank-microservices.git&quot;,
+    &quot;accountId&quot;: &quot;688be101-1667-462f-bfc0-6b312c18d6c8&quot;
   }
+}</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
 }]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2zk8R58dBHGLxPq70YrVTKpizto" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -46,6 +52,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "lakshan",
+    "last_opened_file_path": "/home/pundima/dev/veritas-bank-microservices/be",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -66,6 +73,7 @@
       <option name="presentableId" value="Default" />
       <updated>1752263699454</updated>
       <workItem from="1752263702144" duration="78000" />
+      <workItem from="1752585690217" duration="197000" />
     </task>
     <task id="LOCAL-00001" summary="change folder structure">
       <option name="closed" value="true" />
