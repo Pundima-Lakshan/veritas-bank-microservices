@@ -44,8 +44,8 @@ public class TransactionController {
                 String token = authHeader.substring(7);
                 userId = JwtUtil.extractUserId(token);
             }
+            transactionRequest.setUserId(userId);
         }
-        transactionRequest.setUserId(userId);
         return CompletableFuture.supplyAsync(() -> transactionService.processTransaction(transactionRequest));
     }
 

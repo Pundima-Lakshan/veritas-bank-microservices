@@ -40,6 +40,7 @@ public class AccountService {
     public void createAccount(AccountRequest accountRequest) {
         Account account = Account.builder()
                 .accountNumber(generateIBAN())
+                .accountName(accountRequest.getAccountName())
                 .accountHolderName(accountRequest.getAccountHolderName())
                 .balance(BigDecimal.valueOf(0)) // this will be updated at transaction level
                 .currency(accountRequest.getCurrency())
@@ -122,6 +123,7 @@ public class AccountService {
         return AccountResponse.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
+                .accountName(account.getAccountName())
                 .accountHolderName(account.getAccountHolderName())
                 .balance(account.getBalance())
                 .currency(account.getCurrency())

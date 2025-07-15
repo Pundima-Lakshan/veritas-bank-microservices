@@ -8,6 +8,8 @@ import lombok.Setter;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
 
 /**
  * Represents a transaction.
@@ -28,4 +30,8 @@ public class Transaction {
     private String destinationAccountId; // For transfers
     private String type; // deposit, withdrawal, transfer
     private BigDecimal amount;
+
+    @CreationTimestamp
+    @Column(name = "transaction_time", updatable = false)
+    private LocalDateTime transactionTime;
 }

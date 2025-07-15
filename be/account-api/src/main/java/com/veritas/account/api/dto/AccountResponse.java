@@ -18,6 +18,7 @@ import java.util.Currency;
 public class AccountResponse {
     private String id;
     private String accountNumber;
+    private String accountName;
     private String accountHolderName;
     private BigDecimal balance;
     private Currency currency;

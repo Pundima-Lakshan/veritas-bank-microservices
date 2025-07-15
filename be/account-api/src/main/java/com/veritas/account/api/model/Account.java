@@ -22,6 +22,7 @@ public class Account {
     @Id
     private String id;
     private String accountNumber;
+    private String accountName;
     private String accountHolderName;
     private BigDecimal balance;
     private Currency currency;

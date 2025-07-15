@@ -54,7 +54,8 @@ public class AccountController {
         accountRequest.setUserId(userId);
         accountService.createAccount(accountRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body
-                ("Successfully set up a new bank account for " +
+                ("Successfully set up a new bank account '" +
+                accountRequest.getAccountName() + "' for " +
                 accountRequest.getAccountHolderName() + ".");
     }
 

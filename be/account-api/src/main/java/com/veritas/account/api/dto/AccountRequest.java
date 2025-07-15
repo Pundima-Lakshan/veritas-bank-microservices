@@ -17,6 +17,7 @@ import java.util.Currency;
 @NoArgsConstructor
 public class AccountRequest {
     private String accountHolderName;
+    private String accountName;
     private BigDecimal balance;
     private Currency currency;
     private String userId; // Auth0 user ID (set in backend)
