@@ -1,5 +1,5 @@
-import { AccountsList } from "@/components/templates/index/accounts-list";
-import { QuickActions } from "@/components/templates/index/quick-actions";
+import { AccountsList } from "@/components/templates/dashboard/accounts-list";
+import { QuickActions } from "@/components/templates/dashboard/quick-actions";
 
 export function Index() {
   return (
