@@ -23,7 +23,23 @@ export const Notification = () => {
   // Show toast for websocket notification
   useEffect(() => {
     if (!websocketNotification) return;
-    toast.info(`New transaction: ${websocketNotification.transactionId}`);
+    
+    const { type, amount, assetCode } = websocketNotification;
+    let message = `New transaction: ${type?.toUpperCase() || "TRANSACTION"}`;
+
+    if (amount && assetCode) {
+      message += ` - ${amount} ${assetCode}`;
+    }
+
+    if (type === "transfer") {
+      message += " (Transfer completed)";
+    } else if (type === "deposit") {
+      message += " (Deposit received)";
+    } else if (type === "withdrawal") {
+      message += " (Withdrawal processed)";
+    }
+
+    toast.info(message);
   }, [websocketNotification]);
 
   // Show toast for notifications from the store

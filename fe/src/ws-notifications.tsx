@@ -8,6 +8,11 @@ import { useQueryClient } from "@tanstack/react-query";
 type Notification = {
   transactionId: string;
   userId: string;
+  sourceAccountId?: string;
+  destinationAccountId?: string;
+  type?: string;
+  amount?: string;
+  assetCode?: string;
 };
 
 interface WebSocketStore {
@@ -31,7 +36,7 @@ export function useWebSocketNotifications(userId: string | null) {
     if (!userId) return;
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS("http://localhost:38577/ws-notifications", {
+        new SockJS("http://localhost:38445/ws-notifications", {
           transportOptions: {
             "xhr-streaming": {
               headers: {
@@ -49,6 +54,9 @@ export function useWebSocketNotifications(userId: string | null) {
           `/topic/notifications/${userId}`,
           (message: IMessage) => {
             try {
+              console.log(
+                `subscribing to ws topic /topic/notifications/${userId}`
+              );
               const notif: Notification = JSON.parse(message.body);
               setNotification(notif);
               queryClient.invalidateQueries();

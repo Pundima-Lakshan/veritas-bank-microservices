@@ -115,7 +115,18 @@ public class TransactionService {
     }
 
     transactionRepository.save(transaction);
-    kafkaTemplate.send("notificationTopic", new TransactionEvent(transaction.getTransactionId(), transaction.getUserId()));
+    
+    // Create enhanced transaction event with all details for notifications
+    TransactionEvent transactionEvent = new TransactionEvent();
+    transactionEvent.setTransactionId(transaction.getTransactionId());
+    transactionEvent.setUserId(transaction.getUserId());
+    transactionEvent.setSourceAccountId(transaction.getSourceAccountId());
+    transactionEvent.setDestinationAccountId(transaction.getDestinationAccountId());
+    transactionEvent.setType(transaction.getType());
+    transactionEvent.setAmount(transaction.getAmount().toString());
+    transactionEvent.setAssetCode(transactionRequest.getAssetCode());
+    
+    kafkaTemplate.send("notificationTopic", transactionEvent);
     return "Transaction completed successfully!";
   }
 

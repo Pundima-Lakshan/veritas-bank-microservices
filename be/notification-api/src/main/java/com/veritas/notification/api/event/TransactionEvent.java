@@ -13,4 +13,9 @@ import lombok.NoArgsConstructor;
 public class TransactionEvent {
     private String transactionId;
     private String userId;
+    private String sourceAccountId;
+    private String destinationAccountId;
+    private String type;
+    private String amount;
+    private String assetCode;
 }
