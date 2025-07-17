@@ -32,7 +32,7 @@ export function AccountsList() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>{account.accountHolderName}</CardTitle>
+                <CardTitle>{account.accountName}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">

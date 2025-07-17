@@ -27,7 +27,7 @@ export const useWebSocketNotificationsStore = create<WebSocketStore>((set) => ({
 
 export function useWebSocketNotifications(userId: string | null) {
   const setNotification = useWebSocketNotificationsStore(
-    (state) => state.setNotification
+    (state) => state.setNotification,
   );
 
   const queryClient = useQueryClient();
@@ -36,7 +36,7 @@ export function useWebSocketNotifications(userId: string | null) {
     if (!userId) return;
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS("http://localhost:38445/ws-notifications", {
+        new SockJS("http://localhost:39857/ws-notifications", {
           transportOptions: {
             "xhr-streaming": {
               headers: {
@@ -55,7 +55,7 @@ export function useWebSocketNotifications(userId: string | null) {
           (message: IMessage) => {
             try {
               console.log(
-                `subscribing to ws topic /topic/notifications/${userId}`
+                `subscribing to ws topic /topic/notifications/${userId}`,
               );
               const notif: Notification = JSON.parse(message.body);
               setNotification(notif);
@@ -63,7 +63,7 @@ export function useWebSocketNotifications(userId: string | null) {
             } catch {
               // handle parse error
             }
-          }
+          },
         );
       },
     });
