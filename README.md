@@ -109,6 +109,22 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
   - Single entry point for all clients
   - Centralized logging and security
 
+## 3.5 Authentication & Security
+
+### Auth0 Integration
+- **Authentication Provider:** The platform uses [Auth0](https://auth0.com/) for secure user authentication and authorization.
+- **How it works:**
+  - Users log in or register via Auth0's hosted login page.
+  - Upon successful authentication, Auth0 issues a JWT (JSON Web Token) to the client.
+  - The JWT is included in the `Authorization: Bearer <token>` header for all API requests.
+  - The API Gateway and backend services validate the JWT to ensure the request is authenticated and authorized.
+- **Benefits:**
+  - Centralized, secure authentication with support for social logins, SSO, and MFA.
+  - Simplifies user management and security best practices.
+- **Service Integration:**
+  - The API Gateway enforces authentication for protected routes.
+  - Backend services extract the user identity from the JWT for authorization and data scoping.
+
 ## 4. User Interface
 
 ### 4.1 Implementation
