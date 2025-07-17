@@ -54,6 +54,8 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
   | Method | Endpoint             | Description                                 |
   |--------|----------------------|---------------------------------------------|
   | POST   | `/api/transaction`   | Process a transaction (async, body: TransactionRequest) |
+  | POST   | `/api/transaction`   | Deposit (async, body: deposit type TransactionRequest) |
+  | POST   | `/api/transaction`   | Deposit (async, body: withdraw type TransactionRequest) |
   | GET    | `/api/transaction`   | Get all transactions for the authenticated user |
 - **Inter-service:**
   - Notifies Notification Service on transaction events (via Kafka)
@@ -89,7 +91,7 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 - Eureka dashboard provides health status and instance monitoring.
 - Enables dynamic scaling and failover.
 
-### 3.4 API Gateway (Zuul)
+### 3.4 API Gateway (Spring cloud gateway)
 - **Configuration:**
   - Routes all `/api/*` traffic to appropriate services
   - Handles authentication, rate limiting, and CORS
@@ -102,7 +104,7 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 
 ### 4.1 Implementation
 - **Framework:** React.js (with Redux or Context API for state management)
-- **API Integration:** Axios or Fetch for REST calls via Zuul
+- **API Integration:** Fetch for REST calls via api-gateway
 - **Features:**
   - User registration/login forms
   - Dashboard for account overview and transactions
@@ -110,7 +112,6 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 
 ### 4.2 API Testing
 - **Postman:** Used for manual API testing and collection sharing
-- **Swagger/OpenAPI:** Auto-generated docs for each service (optional)
 
 ## 5. Deployment
 
@@ -118,9 +119,9 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 - Prerequisites: Java 17+, Docker, Maven
 - Steps:
   1. Clone the repository
-  2. Start Eureka server: `cd discovery-server && mvn spring-boot:run`
-  3. Start each microservice: `cd user-service && mvn spring-boot:run` (repeat for others)
-  4. Start frontend: `cd frontend && npm install && npm start`
+  2. Start Config server: `cd be/config-server && mvn spring-boot:run`
+  3. Start each microservice: `cd be/user-service && mvn spring-boot:run` (repeat for others)
+  4. Start frontend: `cd fe && pnpm install && pnpm dev`
 
 ### 5.2 Docker Deployment
 - Each service includes a `Dockerfile`
