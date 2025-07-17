@@ -1,139 +1,185 @@
-## Veritas Bank Microservices
+# Veritas Bank Microservices Platform
 
-### Project Description
-A microservices-based simple banking application.
+## 1. Introduction
 
-**Tech Stack:**
-- **Backend:** Java 17, Spring Boot, Spring Cloud (Eureka, Config Server, Gateway), MongoDB, PostgreSQL, MySQL, Kafka
-- **Infrastructure:** Docker, Docker Compose, Prometheus, Grafana, Zipkin
-- **Frontend:** Minimal web UI for checking real-time notifications (WebSocket-based)
+Veritas Bank is a modern, cloud-native banking platform built using a microservices architecture. The application leverages the Netflix OSS stack to provide scalable, resilient, and discoverable services. Core features include user management, transaction processing, and real-time notifications, all accessible through a unified API gateway and a responsive web interface.
 
-This project demonstrates core banking features (accounts, transactions, asset management, notifications) using a microservices architecture. The frontend is intentionally simple, focused on displaying real-time notifications to users.
+**Key Features:**
+- User registration, authentication, and profile management
+- Secure money transfers and transaction history
+- Real-time notifications for account activity
+- Service discovery, load balancing, and fault tolerance
+- Centralized API gateway for all client requests
+
+## 2. Architecture
+
+### 2.1 Architectural Diagram
 
 
-Key highlights:
-- **Microservices Architecture**: Each domain (account, transaction, asset, notification) is an independent service.
-- **API Gateway**: Centralized entry point for routing, authentication, and security.
-- **Service Discovery**: Dynamic service registration and discovery using Eureka.
-- **Centralized Configuration**: Managed via Spring Cloud Config Server.
-- **Resilience**: Circuit breaker, retry, and timeout patterns for robust operations.
-- **Real-time Notifications**: WebSocket-based notification system for instant updates.
-- **Polyglot Persistence**: Uses MongoDB, PostgreSQL, and MySQL for different services.
-- **Monitoring & Tracing**: Integrated with Prometheus, Grafana, and Zipkin.
+### 2.2 Design Decisions
+- **Service Decomposition:**
+  - **User Service:** Handles authentication, registration, and user profiles. Decoupled for independent scaling and security.
+  - **Transaction Service:** Manages all financial operations, ensuring transactional integrity and auditability.
+  - **Notification Service:** Sends real-time alerts via email/SMS, decoupled for asynchronous processing.
+- **Netflix OSS Stack:**
+  - **Eureka** for service discovery and health monitoring.
+  - **Zuul** as a single entry point and API gateway.
+  - **Ribbon** for client-side load balancing.
+  - **Hystrix** for circuit breaking and resilience.
+  - **Spring Boot** for rapid service development.
 
----
+## 3. Microservices
 
-### Getting Started (Development - BE)
+### 3.1 Implementation Stack
+- **Spring Boot**: Rapid development of RESTful services
+- **Eureka**: Service registry and discovery
+- **Zuul**: API gateway and dynamic routing
+- **Ribbon**: Load balancing between service instances
+- **Hystrix**: Circuit breaker for fault tolerance
 
-#### Prerequisites
-- Java 17+
-- Maven
-- Docker & Docker Compose
-- (Recommended) IntelliJ IDEA or Eclipse
+### 3.2 Core Services
 
-#### 1. Clone the Repository
-```bash
-git clone <your-fork-or-this-repo-url>
-cd veritas-bank-microservices/be
-```
+#### 3.2.1 User Service
+- **Functionality:** User registration, login, profile management, and authentication.
+- **Endpoints:**
+  - `POST /users/register` — Register a new user
+  - `POST /users/login` — Authenticate and issue JWT
+  - `GET /users/{id}` — Get user profile
+  - `PUT /users/{id}` — Update user profile
+- **Inter-service:**
+  - Issues JWT tokens for secure communication
+  - Registers with Eureka for discovery
 
-#### 2. Start Infrastructure Services
-Start supporting services (databases, Kafka, Prometheus, Grafana, etc.) using Docker Compose:
-```bash
-docker-compose -f docker-compose-infrastructure-services.yml up -d
-```
+#### 3.2.2 Transaction Service
+- **Functionality:** Handles all account transactions, transfers, and transaction history.
+- **Endpoints:**
+  - `POST /transactions/transfer` — Transfer funds between accounts
+  - `GET /transactions/{userId}` — List all transactions for a user
+  - `GET /transactions/{id}` — Get transaction details
+  - `POST /transactions/deposit` — Deposit funds
+  - `POST /transactions/withdraw` — Withdraw funds
+- **Inter-service:**
+  - Notifies Notification Service on transaction events
+  - Uses Ribbon for load-balanced calls to Notification Service
+  - Registers with Eureka
 
-#### 3. Build All Applications
-From the project root:
-```bash
-mvn clean install -pl !config-server
-```
-Or build a specific service:
-```bash
-mvn clean install -pl <module-name>
-# Example: mvn clean install -pl account-api
-```
+#### 3.2.3 Notification Service
+- **Functionality:** Sends notifications (email/SMS) for account activity and alerts.
+- **Endpoints:**
+  - `POST /notifications/send` — Send a notification
+  - `GET /notifications/{userId}` — List notifications for a user
+  - `POST /notifications/subscribe` — Subscribe to notification types
+  - `DELETE /notifications/unsubscribe` — Unsubscribe from notifications
+- **Inter-service:**
+  - Consumes messages from Transaction Service (via REST or message broker)
+  - Registers with Eureka
 
-#### 4. Run Microservices
-Start each service (account-api, transaction-api, asset-management-api, notification-api, api-gateway, discovery-server) from your IDE or using Maven:
-```bash
-cd <service-folder>
-mvn spring-boot:run
-```
+### 3.3 Discovery Server (Eureka)
+- All services register with Eureka at startup.
+- Eureka dashboard provides health status and instance monitoring.
+- Enables dynamic scaling and failover.
 
-#### 8. Authentication
-All endpoints require Bearer token authentication via Auth0. Configure your Auth0 credentials in the config-server.
+### 3.4 API Gateway (Zuul)
+- **Configuration:**
+  - Routes all `/api/*` traffic to appropriate services
+  - Handles authentication, rate limiting, and CORS
+  - Uses Eureka for dynamic routing
+- **Role:**
+  - Single entry point for all clients
+  - Centralized logging and security
 
----
+## 4. User Interface
 
-## Veritas Bank Microservices - Complete Endpoint Documentation
+### 4.1 Implementation
+- **Framework:** React.js (with Redux or Context API for state management)
+- **API Integration:** Axios or Fetch for REST calls via Zuul
+- **Features:**
+  - User registration/login forms
+  - Dashboard for account overview and transactions
+  - Real-time notification panel
 
-### 1. Account API (`/api/account`)
-**Base URL**: `http://localhost:8080/api/account` (via API Gateway)
+### 4.2 API Testing
+- **Postman:** Used for manual API testing and collection sharing
+- **Swagger/OpenAPI:** Auto-generated docs for each service (optional)
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| `POST` | `/` | Create a new bank account | `AccountRequest` | Success message (201) |
-| `GET` | `/` | Get all accounts for authenticated user | - | `List<AccountResponse>` (200) |
-| `DELETE` | `/` | Delete account by account holder name | `AccountRequest` | Success message (200) or error (404) |
-| `DELETE` | `/{id}` | Delete account by ID | - | Success message (200) or error (404) |
-| `GET` | `/{id}` | Get account by ID | - | `AccountResponse` (200) or 404 |
-| `POST` | `/{id}/debit` | Debit account by amount | `DebitCreditRequest` | Success message (200) or error (400) |
-| `POST` | `/{id}/credit` | Credit account by amount | `DebitCreditRequest` | Success message (200) |
+## 5. Deployment
 
-### 2. Transaction API (`/api/transaction`)
-**Base URL**: `http://localhost:8080/api/transaction` (via API Gateway)
+### 5.1 Local Deployment
+- Prerequisites: Java 17+, Docker, Maven
+- Steps:
+  1. Clone the repository
+  2. Start Eureka server: `cd discovery-server && mvn spring-boot:run`
+  3. Start Zuul gateway: `cd api-gateway && mvn spring-boot:run`
+  4. Start each microservice: `cd user-service && mvn spring-boot:run` (repeat for others)
+  5. Start frontend: `cd frontend && npm install && npm start`
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| `POST` | `/` | Process transaction asynchronously | `TransactionRequest` | `CompletableFuture<String>` (201) |
-| `GET` | `/` | Get all transactions for authenticated user | - | `List<Transaction>` (200) |
+### 5.2 Docker Deployment
+- Each service includes a `Dockerfile`
+- Use `docker-compose` for orchestration:
+  ```yaml
+  version: '3.8'
+  services:
+    discovery-server:
+      build: ./discovery-server
+      ports:
+        - "8761:8761"
+    api-gateway:
+      build: ./api-gateway
+      ports:
+        - "8080:8080"
+      depends_on:
+        - discovery-server
+    user-service:
+      build: ./user-service
+      ports:
+        - "8081:8081"
+      depends_on:
+        - discovery-server
+    transaction-service:
+      build: ./transaction-service
+      ports:
+        - "8082:8082"
+      depends_on:
+        - discovery-server
+    notification-service:
+      build: ./notification-service
+      ports:
+        - "8083:8083"
+      depends_on:
+        - discovery-server
+    frontend:
+      build: ./frontend
+      ports:
+        - "3000:3000"
+      depends_on:
+        - api-gateway
+  ```
+- Start all: `docker-compose up --build`
 
-### 3. Asset Management API (`/api/asset-management`)
-**Base URL**: `http://localhost:8080/api/asset-management` (via API Gateway)
+### 5.3 Cloud Deployment
+- Deploy to AWS ECS, Azure AKS, or Google GKE
+- Use managed databases and message brokers
+- Configure environment variables and secrets
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| `GET` | `/` | Check asset availability | Query params: `assetCode`, `amount` | `List<AssetManagementResponse>` (200) |
-| `POST` | `/update-amount` | Update asset amount | Query params: `assetCode`, `amount` | Success message (200) |
-| `POST` | `/` | Create new asset | `Asset` | `Asset` (201) |
-| `GET` | `/{id}` | Get asset by ID | - | `Asset` (200) |
-| `GET` | `/all` | Get all assets | - | `List<Asset>` (200) |
-| `PUT` | `/{id}` | Update asset by ID | `Asset` | `Asset` (200) |
-| `DELETE` | `/{id}` | Delete asset by ID | - | No content (204) |
+## 6. Source Code
 
-### 4. Notification API (WebSocket)
-**WebSocket Endpoint**: `ws://localhost:8080/ws-notifications` (via API Gateway)
+- **GitHub Repository:** [https://github.com/your-org/veritas-bank-microservices](https://github.com/your-org/veritas-bank-microservices)
 
-| Type | Endpoint | Description |
-|------|----------|-------------|
-| WebSocket | `/ws-notifications` | WebSocket endpoint for real-time notifications |
-| STOMP Topic | `/topic` | Message broker for broadcasting notifications |
-| STOMP App | `/app` | Application destination prefix for sending messages |
+### 6.1 Development Challenges & Solutions
+- **Service Communication:** Used Eureka and Ribbon for dynamic service discovery and load balancing.
+- **Fault Tolerance:** Integrated Hystrix for circuit breaking and fallback logic.
+- **API Security:** JWT-based authentication at the gateway and service level.
+- **Data Consistency:** Used distributed transactions and message queues for eventual consistency.
+- **Testing:** Employed Postman and Swagger for API validation and contract testing.
 
-### 5. Infrastructure Services (via API Gateway)
-
-| Service | Endpoint | Description |
-|---------|----------|-------------|
-| Discovery Server | `/discovery-server` | Eureka discovery server UI |
-| Discovery Server | `/eureka/**` | Eureka static resources |
-| Config Server | `/config-server/**` | Configuration server |
-| API Gateway | `/` | API Gateway root |
-
-### Authentication & Security
-- All endpoints require Bearer token authentication via Auth0
-- JWT tokens are validated and user ID is extracted from the `sub` claim
-- CORS is configured for `http://localhost:5173` (frontend)
-
-### Circuit Breaker & Resilience
-- Transaction API implements circuit breaker pattern with fallback methods
-- Async processing with `CompletableFuture` for transaction operations
-- Retry and timeout configurations are applied
-
-### Key Features
-1. **Microservices Architecture**: Each service is independently deployable
-2. **API Gateway**: Centralized routing and authentication
-3. **Service Discovery**: Eureka-based service registration
-4. **Configuration Management**: Centralized config via Config Server
-5. **Real-time Notifications**: WebSocket-based notification system
-6. **Resilience Patterns**: Circuit breaker, retry, and timeout mechanisms
+## 7. References
+- [Spring Cloud Netflix](https://cloud.spring.io/spring-cloud-netflix/)
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [Netflix Eureka](https://github.com/Netflix/eureka)
+- [Netflix Zuul](https://github.com/Netflix/zuul)
+- [Microservices application](https://github.com/zoltanvin/royal-reserve-bank.git)
+- [Netflix Ribbon](https://github.com/Netflix/ribbon)
+- [Netflix Hystrix](https://github.com/Netflix/Hystrix)
+- [Docker Documentation](https://docs.docker.com/)
+- [React Documentation](https://react.dev/)
+- [Postman](https://www.postman.com/)
