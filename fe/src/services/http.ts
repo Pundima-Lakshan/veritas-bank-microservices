@@ -9,6 +9,7 @@ export interface Account {
   balance: number;
   currency: string;
   userId: string;
+  accountName: string;
 }
 
 export interface CreateAccountRequest {
@@ -63,7 +64,7 @@ export const debitAccount = ({
 }) => {
   return post<Account, { amount: number }>(
     `${BASE_URL}account/${accountId}/debit`,
-    { amount }
+    { amount },
   );
 };
 
@@ -76,7 +77,7 @@ export const creditAccount = ({
 }) => {
   return post<Account, { amount: number }>(
     `${BASE_URL}account/${accountId}/credit`,
-    { amount }
+    { amount },
   );
 };
 
