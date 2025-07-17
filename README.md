@@ -109,7 +109,7 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
   - Single entry point for all clients
   - Centralized logging and security
 
-## 3.5 Authentication & Security
+### 3.5 Authentication & Security
 
 ### Auth0 Integration
 - **Authentication Provider:** The platform uses [Auth0](https://auth0.com/) for secure user authentication and authorization.
