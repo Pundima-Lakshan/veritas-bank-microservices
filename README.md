@@ -137,8 +137,3 @@ All endpoints require Bearer token authentication via Auth0. Configure your Auth
 4. **Configuration Management**: Centralized config via Config Server
 5. **Real-time Notifications**: WebSocket-based notification system
 6. **Resilience Patterns**: Circuit breaker, retry, and timeout mechanisms
-
----
-
-### Credits
-This project is based on Royal Reserve Bank project, available at https://github.com/zoltanvin/royal-reserve-bank.
