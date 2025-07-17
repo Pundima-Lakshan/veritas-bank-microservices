@@ -7,6 +7,7 @@ const account = {
   balance: 12345.67,
   number: "1234567890123456",
   type: "Checking",
+  accountName: "Main",
 };
 
 export function AccountSummary() {
@@ -22,7 +23,7 @@ export function AccountSummary() {
         <div className="space-y-2">
           <div>
             <span className="font-medium">Name:</span>{" "}
-            {user?.name || account.name}
+            {account.accountName ?? user?.name}
           </div>
           <div>
             <span className="font-medium">Current Balance:</span> $
