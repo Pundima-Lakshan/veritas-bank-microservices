@@ -15,17 +15,14 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 
 ### 2.1 Architectural Diagram
 
+![System Architecture](./architecture.png)
 
 ### 2.2 Design Decisions
 - **Service Decomposition:**
   - **User Service:** Handles authentication, registration, and user profiles. Decoupled for independent scaling and security.
   - **Transaction Service:** Manages all financial operations, ensuring transactional integrity and auditability.
   - **Notification Service:** Sends real-time alerts via email/SMS, decoupled for asynchronous processing.
-- **Netflix OSS Stack:**
-  - **Eureka** for service discovery and health monitoring.
-  - **Zuul** as a single entry point and API gateway.
-  - **Ribbon** for client-side load balancing.
-  - **Hystrix** for circuit breaking and resilience.
+  - **Netflix OSS Stack:**
   - **Spring Boot** for rapid service development.
 
 ## 3. Microservices
@@ -33,45 +30,58 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 ### 3.1 Implementation Stack
 - **Spring Boot**: Rapid development of RESTful services
 - **Eureka**: Service registry and discovery
-- **Zuul**: API gateway and dynamic routing
-- **Ribbon**: Load balancing between service instances
-- **Hystrix**: Circuit breaker for fault tolerance
 
 ### 3.2 Core Services
 
-#### 3.2.1 User Service
-- **Functionality:** User registration, login, profile management, and authentication.
+#### 3.2.1 Account Service
+- **Functionality:** User account creation, retrieval, update, and deletion; debit/credit operations.
 - **Endpoints:**
-  - `POST /users/register` — Register a new user
-  - `POST /users/login` — Authenticate and issue JWT
-  - `GET /users/{id}` — Get user profile
-  - `PUT /users/{id}` — Update user profile
+  | Method | Endpoint                   | Description                                 |
+  |--------|----------------------------|---------------------------------------------|
+  | POST   | `/api/account`             | Create a new bank account                   |
+  | GET    | `/api/account`             | Get all accounts for the authenticated user |
+  | DELETE | `/api/account`             | Delete account by account holder name (body)|
+  | DELETE | `/api/account/{id}`        | Delete account by account ID                |
+  | GET    | `/api/account/{id}`        | Get account details by ID                   |
+  | POST   | `/api/account/{id}/debit`  | Debit an account by ID                      |
+  | POST   | `/api/account/{id}/credit` | Credit an account by ID                     |
 - **Inter-service:**
-  - Issues JWT tokens for secure communication
   - Registers with Eureka for discovery
 
 #### 3.2.2 Transaction Service
-- **Functionality:** Handles all account transactions, transfers, and transaction history.
+- **Functionality:** Handles all account transactions and transaction history.
 - **Endpoints:**
-  - `POST /transactions/transfer` — Transfer funds between accounts
-  - `GET /transactions/{userId}` — List all transactions for a user
-  - `GET /transactions/{id}` — Get transaction details
-  - `POST /transactions/deposit` — Deposit funds
-  - `POST /transactions/withdraw` — Withdraw funds
+  | Method | Endpoint             | Description                                 |
+  |--------|----------------------|---------------------------------------------|
+  | POST   | `/api/transaction`   | Process a transaction (async, body: TransactionRequest) |
+  | GET    | `/api/transaction`   | Get all transactions for the authenticated user |
 - **Inter-service:**
-  - Notifies Notification Service on transaction events
-  - Uses Ribbon for load-balanced calls to Notification Service
+  - Notifies Notification Service on transaction events (via Kafka)
   - Registers with Eureka
 
-#### 3.2.3 Notification Service
-- **Functionality:** Sends notifications (email/SMS) for account activity and alerts.
+#### 3.2.3 Asset Management Service
+- **Functionality:** Manages assets, their availability, and updates.
 - **Endpoints:**
-  - `POST /notifications/send` — Send a notification
-  - `GET /notifications/{userId}` — List notifications for a user
-  - `POST /notifications/subscribe` — Subscribe to notification types
-  - `DELETE /notifications/unsubscribe` — Unsubscribe from notifications
+  | Method | Endpoint                                 | Description                                         |
+  |--------|------------------------------------------|-----------------------------------------------------|
+  | GET    | `/api/asset-management`                  | Check asset availability (query: assetCode, amount) |
+  | POST   | `/api/asset-management/update-amount`    | Update asset amount (query: assetCode, amount)      |
+  | POST   | `/api/asset-management`                  | Create a new asset (body: Asset)                    |
+  | GET    | `/api/asset-management/{id}`             | Get asset by ID                                     |
+  | GET    | `/api/asset-management/all`              | List all assets                                     |
+  | PUT    | `/api/asset-management/{id}`             | Update asset by ID (body: Asset)                    |
+  | DELETE | `/api/asset-management/{id}`             | Delete asset by ID                                  |
 - **Inter-service:**
-  - Consumes messages from Transaction Service (via REST or message broker)
+  - Registers with Eureka
+
+#### 3.2.4 Notification Service
+- **Functionality:** Sends notifications (email/SMS/WebSocket) for account activity and alerts.
+- **Endpoints:**
+  - **No REST endpoints are exposed.**
+  - Operates via Kafka listeners and WebSocket notifications.
+  - Listens to the `notificationTopic` Kafka topic and sends notifications to users via WebSocket (`/topic/notifications/{userId}`).
+- **Inter-service:**
+  - Consumes messages from Transaction Service (via Kafka)
   - Registers with Eureka
 
 ### 3.3 Discovery Server (Eureka)
@@ -109,51 +119,12 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 - Steps:
   1. Clone the repository
   2. Start Eureka server: `cd discovery-server && mvn spring-boot:run`
-  3. Start Zuul gateway: `cd api-gateway && mvn spring-boot:run`
-  4. Start each microservice: `cd user-service && mvn spring-boot:run` (repeat for others)
-  5. Start frontend: `cd frontend && npm install && npm start`
+  3. Start each microservice: `cd user-service && mvn spring-boot:run` (repeat for others)
+  4. Start frontend: `cd frontend && npm install && npm start`
 
 ### 5.2 Docker Deployment
 - Each service includes a `Dockerfile`
 - Use `docker-compose` for orchestration:
-  ```yaml
-  version: '3.8'
-  services:
-    discovery-server:
-      build: ./discovery-server
-      ports:
-        - "8761:8761"
-    api-gateway:
-      build: ./api-gateway
-      ports:
-        - "8080:8080"
-      depends_on:
-        - discovery-server
-    user-service:
-      build: ./user-service
-      ports:
-        - "8081:8081"
-      depends_on:
-        - discovery-server
-    transaction-service:
-      build: ./transaction-service
-      ports:
-        - "8082:8082"
-      depends_on:
-        - discovery-server
-    notification-service:
-      build: ./notification-service
-      ports:
-        - "8083:8083"
-      depends_on:
-        - discovery-server
-    frontend:
-      build: ./frontend
-      ports:
-        - "3000:3000"
-      depends_on:
-        - api-gateway
-  ```
 - Start all: `docker-compose up --build`
 
 ### 5.3 Cloud Deployment
