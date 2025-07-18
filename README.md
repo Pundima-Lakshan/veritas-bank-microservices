@@ -129,7 +129,7 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 
 ### 4.1 Implementation
 
-- **Framework:** React.js (with Redux or Context API for state management)
+- **Framework:** React.js
 - **API Integration:** Fetch for REST calls via api-gateway
 - **Features:**
   - User registration/login forms
@@ -155,7 +155,7 @@ Veritas Bank is a modern, cloud-native banking platform built using a microservi
 
 - Each service includes a `Dockerfile`
 - Use `docker-compose` for orchestration:
-- Start all: `docker-compose up --build`
+- Start insfrastructure: `docker compose -f docker-compose-infrastructure-services.yml up -d`
 
 ### 5.3 Cloud Deployment
 
